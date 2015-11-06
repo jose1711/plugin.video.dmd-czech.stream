@@ -1,3 +1,6 @@
+2015-11-06
+  * Moznost automatickeho prehravania v uzivatelom definovanej kvalite
+  * Nazvy vsetkych relacii je zoradeny podla abecedy
 2015-07-06 [1.2.2]
   * Oprava listování všech pořadů
 2015-02-15 [1.2.1]
