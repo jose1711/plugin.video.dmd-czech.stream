@@ -186,13 +186,8 @@ def VIDEOLINK(url,name,userquality=None):
             continue
 
     # is autoplay enabled?
-<<<<<<< HEAD
     if userquality != None:
         if not 'MQ' in str(userquality):
-=======
-    if userquality:
-        if not 'MQ' in userquality:
->>>>>>> c82fb0d713d72ec25ebd9deb0b277cbc49d53e82
             xbmc.Player().play(streamurllist[userquality])
         else:
             xbmc.Player().play(streamurllist[int(len(streamurllist)/2)])
