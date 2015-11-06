@@ -17,6 +17,16 @@ icon = xbmc.translatePath( os.path.join( home, 'icon.png' ) )
 nexticon = xbmc.translatePath( os.path.join( home, 'nextpage.png' ) )
 fanart = xbmc.translatePath( os.path.join( home, 'fanart.jpg' ) )
 scriptname = addon.getAddonInfo('name')
+userquality =__settings__.getSetting('quality')
+
+userqualitysettings={}
+userqualitysettings['select']=None
+userqualitysettings['HQ']=-1
+userqualitysettings['LQ']=0
+try:
+    userquality = userqualitysettings[userquality]
+except:
+    pass
 
 def replace_words(text, word_dic):
     rc = re.compile('|'.join(map(re.escape, word_dic)))
@@ -109,7 +119,7 @@ def OBSAH():
 
 def LIST_SHOWS(url):
     data = getJsonDataFromUrl(url)
-    for item in data[u'_embedded'][u'stream:show']:
+    for item in sorted(data[u'_embedded'][u'stream:show'],key=lambda n:n[u'name']):
         link = __baseurl__+item[u'_links'][u'self'][u'href']
         image = makeImageUrl(item[u'image'])
         name = item[u'name']
@@ -157,12 +167,13 @@ def LIST_EPISODES(url):
     except:
         logDbg('Další epizody nenalezeny')
 
-def VIDEOLINK(url,name):
+def VIDEOLINK(url,name,userquality=None):
     data = getJsonDataFromUrl(url)
     name = data[u'name']
     thumb = makeImageUrl(data[u'image'])
     popis = data[u'detail']
     logDbg(url)
+    streamurllist=[]
     for item in data[u'video_qualities']:
         try:
             for fmt in item[u'formats']:
@@ -170,8 +181,16 @@ def VIDEOLINK(url,name):
                     stream_url = fmt[u'source']
                     quality = fmt[u'quality']
                     addLink(quality+' '+name,stream_url,thumb,popis)
+                streamurllist.append(stream_url) 
         except:
             continue
+
+    # is autoplay enabled?
+    if userquality:
+        if not 'MQ' in userquality:
+            xbmc.Player().play(streamurllist[userquality])
+        else:
+            xbmc.Player().play(streamurllist[int(len(streamurllist)/2)])
     try:
         link = __baseurl__+data[u'_embedded'][u'stream:show'][u'_links'][u'self'][u'href']
         image = makeImageUrl(data[u'_embedded'][u'stream:show'][u'image'])
@@ -259,6 +278,6 @@ elif mode==3:
 
 elif mode==10:
         STATS(name, "Item")
-        VIDEOLINK(url,name)
+        VIDEOLINK(url,name,userquality)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
