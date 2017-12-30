@@ -18,6 +18,7 @@ nexticon = xbmc.translatePath( os.path.join( home, 'nextpage.png' ) )
 fanart = xbmc.translatePath( os.path.join( home, 'fanart.jpg' ) )
 scriptname = addon.getAddonInfo('name')
 quality_index = int(addon.getSetting('quality'))
+durations_settings = (addon.getSetting('durations') == 'true')
 quality_settings = ["ask", "240p", "360p", "480p", "720p", "1080p"]
 
 MODE_LIST_SHOWS = 1
@@ -181,10 +182,17 @@ def listSeasons(url):
         link = __baseurl__+data[u'_links'][u'next'][u'href']
         addDir(u'[B][COLOR blue]'+getLS(30004)+u' >>[/COLOR][/B]',link,MODE_LIST_SEASON,nexticon)
 
+def seconds_to_mmss(sec):
+    return '%02d:%02d' % (int(sec / 60), sec % 60)
+
 def addEpisode(item, season_name='', islatest=False):
     link = __baseurl__+item[u'_links'][u'self'][u'href']
     image = makeImageUrl(item[u'image'])
-    name = item[u'name']
+    duration = seconds_to_mmss(item['duration'])
+    name = ''
+    if durations_settings:
+        name = '(' + duration + ') ' + item[u'name']
+    name += item[u'name']
     if u'order' in item:
         name = str(item[u'order']) +'. '+ name
     if (len(season_name)==0) and ((u'_embedded' in item) and (u'stream:show' in item[u'_embedded'])) :
